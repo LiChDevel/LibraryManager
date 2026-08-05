@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:models="clr-namespace:LibraryManager.Models" x:Class="LibraryManager.MainPage" BackgroundColor="#F6F1E7" Title="Catalog">
+  <Grid Padding="32" RowDefinitions="Auto,*" RowSpacing="24">
+    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+      <VerticalStackLayout Spacing="2">
+        <Label Text="THE READING ROOM" FontSize="13" FontAttributes="Bold" TextColor="#A95C39" CharacterSpacing="1.2" />
+        <Label Text="Library catalog" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+      </VerticalStackLayout>
+      <Button Grid.Column="1" Text="Status report" Clicked="OnOpenStatusReportClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#173B4C" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+    </Grid>
+    <Grid Grid.Row="1" ColumnDefinitions="1.15*,1.35*,1*" ColumnSpacing="20">
+      <Border Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="22" StrokeShape="RoundRectangle 12">
+        <ScrollView><VerticalStackLayout Spacing="15">
+          <Label Text="Add a book" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" />
+          <Label Text="Catalog details" FontSize="13" TextColor="#776A5E" />
+          <Entry x:Name="TitleEntry" Placeholder="Book title *" />
+          <Entry x:Name="AuthorEntry" Placeholder="Author *" />
+          <Entry x:Name="IsbnEntry" Placeholder="ISBN *" />
+          <Entry x:Name="YearEntry" Placeholder="Publication year *" Keyboard="Numeric" />
+          <Label Text="New catalog items are available by default." FontSize="12" TextColor="#776A5E" />
+          <Button Text="Save to catalog" Clicked="OnSaveBookClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" Padding="16,11" />
+          <Button Text="Clear form" Clicked="OnClearFormClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" />
+        </VerticalStackLayout></ScrollView>
+      </Border>
+      <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+        <Label Text="All books" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" />
+        <SearchBar Grid.Row="1" x:Name="SearchEntry" Placeholder="Search title or author" TextChanged="OnSearchTextChanged" BackgroundColor="#FFFDF8" />
+        <CollectionView Grid.Row="2" x:Name="BooksCollection" SelectionMode="Single" SelectionChanged="OnBookSelectionChanged" EmptyView="No books match this search.">
+          <CollectionView.ItemTemplate><DataTemplate>
+            <Border Stroke="#E5DACB" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="14" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
+              <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16" TextColor="#173B4C" LineBreakMode="TailTruncation" />
+                <Label Grid.Column="1" Text="{Binding StatusLabel}" FontSize="11" FontAttributes="Bold" TextColor="#3F7452" VerticalOptions="Center">
+                  <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="{x:Static models:BookStatus.CheckedOut}">
+                      <Setter Property="TextColor" Value="#B5493B" />
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+                <Label Grid.Row="1" Text="{Binding Author}" FontSize="13" TextColor="#776A5E" />
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding PublicationYear}" FontSize="12" TextColor="#776A5E" />
+              </Grid>
+            </Border>
+          </DataTemplate></CollectionView.ItemTemplate>
+        </CollectionView>
+      </Grid>
+      <Border Grid.Column="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#173B4C" Padding="22" StrokeShape="RoundRectangle 12">
+        <ScrollView>
+          <VerticalStackLayout Spacing="13">
+            <Label Text="BOOK DETAILS" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#E3B18C" />
+            <Label x:Name="DetailTitleLabel" Text="Select a book" FontSize="24" FontAttributes="Bold" TextColor="#FFFDF8" />
+            <Label x:Name="DetailAuthorLabel" Text="Its full catalog record will appear here." FontSize="14" TextColor="#C9D6D9" />
+            <BoxView HeightRequest="1" Color="#426071" Margin="0,6" />
+            <Label x:Name="DetailIsbnLabel" Text="ISBN —" FontSize="14" TextColor="#FFFDF8" />
+            <Label x:Name="DetailYearLabel" Text="Published —" FontSize="14" TextColor="#FFFDF8" />
+            <Label x:Name="DetailStatusLabel" Text="Status —" FontSize="14" FontAttributes="Bold" TextColor="#E3B18C" />
+            <Label x:Name="DetailLoanDateLabel" Text="Lent on —" FontSize="14" TextColor="#FFFDF8" />
+            <Label x:Name="DetailReturnDateLabel" Text="Expected return —" FontSize="14" TextColor="#FFFDF8" />
+            <Label x:Name="DetailBorrowerLabel" Text="Borrower —" FontSize="14" TextColor="#FFFDF8" />
+            <Label x:Name="DetailBorrowerIdLabel" Text="Borrower ID —" FontSize="14" TextColor="#FFFDF8" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,5,0,0">
+              <Button x:Name="LendButton" Text="Lend book" Clicked="OnLendBookClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" />
+              <Button x:Name="LostButton" Text="Lost book" Clicked="OnMarkBookLostClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#B5493B" TextColor="White" CornerRadius="8" />
+              <Button Grid.Column="1" x:Name="ReturnButton" Text="Mark returned" Clicked="OnReturnBookClicked" IsVisible="False" BackgroundColor="#4C7A5B" TextColor="White" CornerRadius="8" />
+            </Grid>
+
+            <Border x:Name="LoanForm" IsVisible="False" Stroke="#E3B18C" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="14" StrokeShape="RoundRectangle 8">
+              <VerticalStackLayout Spacing="10">
+                <Label Text="New loan" FontSize="18" FontAttributes="Bold" TextColor="#173B4C" />
+                <Label Text="Borrower information is required to complete the loan." FontSize="11" TextColor="#776A5E" />
+                <Entry x:Name="BorrowerNameEntry" Placeholder="Borrower full name *" Keyboard="Text" TextChanged="OnBorrowerNameTextChanged" />
+                <Entry x:Name="BorrowerIdEntry" Placeholder="Borrower ID *" Keyboard="Numeric" TextChanged="OnBorrowerIdTextChanged" />
+                <Label x:Name="BorrowerInputRuleLabel" Text="Name: letters and spaces only. ID: numbers only." FontSize="11" TextColor="#776A5E" />
+                <Label Text="Expected return date *" FontSize="12" TextColor="#776A5E" />
+                <DatePicker x:Name="ExpectedReturnDatePicker" Format="MMMM d, yyyy" TextColor="#173B4C" BackgroundColor="Transparent" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                  <Button Text="Cancel" Clicked="OnCancelLoanClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" />
+                  <Button Grid.Column="1" Text="Confirm loan" Clicked="OnConfirmLoanClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" />
+                </Grid>
+              </VerticalStackLayout>
+            </Border>
+
+            <BoxView HeightRequest="1" Color="#426071" Margin="0,7" />
+            <Grid ColumnDefinitions="*,Auto">
+              <Label Text="LOAN HISTORY" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#E3B18C" />
+              <Label Grid.Column="1" x:Name="LoanHistoryCountLabel" Text="0 records" FontSize="11" TextColor="#C9D6D9" />
+            </Grid>
+            <Label x:Name="NoLoanHistoryLabel" Text="No loans have been recorded for this book." FontSize="12" TextColor="#C9D6D9" />
+            <VerticalStackLayout x:Name="LoanHistoryList" IsVisible="False" Spacing="9">
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="models:LoanRecord">
+                  <Border Stroke="#426071" StrokeThickness="1" BackgroundColor="#21495A" Padding="12" StrokeShape="RoundRectangle 8">
+                    <VerticalStackLayout Spacing="4">
+                      <Label Text="{Binding BorrowerDisplay}" FontSize="13" FontAttributes="Bold" TextColor="#FFFDF8" />
+                      <Label Text="{Binding LentOnDisplay}" FontSize="11" TextColor="#C9D6D9" />
+                      <Label Text="{Binding ExpectedReturnDisplay}" FontSize="11" TextColor="#C9D6D9" />
+                      <Label Text="{Binding ActualReturnDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#9CC9A8">
+                        <Label.Triggers>
+                          <DataTrigger TargetType="Label" Binding="{Binding ActualReturnDate}" Value="{x:Null}">
+                            <Setter Property="TextColor" Value="#F08A7C" />
+                          </DataTrigger>
+                        </Label.Triggers>
+                      </Label>
+                    </VerticalStackLayout>
+                  </Border>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="10" Margin="0,5,0,0">
+              <Button x:Name="DeleteButton" Text="Delete book" Clicked="OnDeleteBookClicked" IsEnabled="False" BackgroundColor="Transparent" TextColor="#FFFDF8" BorderColor="#E3B18C" BorderWidth="1" CornerRadius="8" />
+            </VerticalStackLayout>
+          </VerticalStackLayout>
+        </ScrollView>
+      </Border>
+    </Grid>
+
+    <Grid Grid.RowSpan="2" x:Name="StatusReportOverlay" IsVisible="False" ZIndex="10" BackgroundColor="#F6F1E7" RowDefinitions="Auto,Auto,*" RowSpacing="22">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+        <VerticalStackLayout Spacing="2">
+          <Label Text="CIRCULATION SNAPSHOT" FontSize="13" FontAttributes="Bold" TextColor="#A95C39" CharacterSpacing="1.2" />
+          <Label Text="Book status report" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+        </VerticalStackLayout>
+        <Button Grid.Column="1" Text="Lost books" Clicked="OnOpenLostBooksClicked" BackgroundColor="Transparent" TextColor="#B5493B" BorderColor="#B5493B" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+        <Button Grid.Column="2" Text="Close report" Clicked="OnCloseStatusReportClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+      </Grid>
+
+      <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="16">
+        <Border Stroke="#BFD2C5" StrokeThickness="1" BackgroundColor="#EAF3EC" Padding="16" StrokeShape="RoundRectangle 10">
+          <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Available in the library" FontSize="15" FontAttributes="Bold" TextColor="#3F7452" />
+            <Label Grid.Column="1" x:Name="AvailableCountLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#3F7452" />
+          </Grid>
+        </Border>
+        <Border Grid.Column="1" Stroke="#E0B9B2" StrokeThickness="1" BackgroundColor="#F8EAE7" Padding="16" StrokeShape="RoundRectangle 10">
+          <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Currently checked out" FontSize="15" FontAttributes="Bold" TextColor="#B5493B" />
+            <Label Grid.Column="1" x:Name="CheckedOutCountLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#B5493B" />
+          </Grid>
+        </Border>
+      </Grid>
+
+      <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="18">
+        <Border Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
+          <Grid RowDefinitions="Auto,*" RowSpacing="12">
+            <Label Text="AVAILABLE" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#3F7452" />
+            <CollectionView Grid.Row="1" x:Name="AvailableBooksReportCollection" SelectionMode="None" EmptyView="No books are currently available.">
+              <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:BookStatusReportItem">
+                  <Border Stroke="#DDE8E0" StrokeThickness="1" BackgroundColor="#F8FBF8" Padding="13" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
+                    <VerticalStackLayout Spacing="3">
+                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                      <Label Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
+                      <Label Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#3F7452" />
+                    </VerticalStackLayout>
+                  </Border>
+                </DataTemplate>
+              </CollectionView.ItemTemplate>
+            </CollectionView>
+          </Grid>
+        </Border>
+
+        <Border Grid.Column="1" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
+          <Grid RowDefinitions="Auto,*" RowSpacing="12">
+            <Label Text="CHECKED OUT" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#B5493B" />
+            <CollectionView Grid.Row="1" x:Name="CheckedOutBooksReportCollection" SelectionMode="None" EmptyView="No books are currently checked out.">
+              <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:BookStatusReportItem">
+                  <Border Stroke="#EBD1CC" StrokeThickness="1" BackgroundColor="#FCF6F4" Padding="13" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
+                    <VerticalStackLayout Spacing="3">
+                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                      <Label Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
+                      <Label Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
+                      <Label Text="{Binding ExpectedReturnDisplay}" FontSize="11" TextColor="#776A5E" />
+                    </VerticalStackLayout>
+                  </Border>
+                </DataTemplate>
+              </CollectionView.ItemTemplate>
+            </CollectionView>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+
+    <Grid Grid.RowSpan="2" x:Name="LostBooksOverlay" IsVisible="False" ZIndex="11" BackgroundColor="#F6F1E7" RowDefinitions="Auto,Auto,*" RowSpacing="22">
+      <Grid ColumnDefinitions="*,Auto">
+        <VerticalStackLayout Spacing="2">
+          <Label Text="ARCHIVED CIRCULATION" FontSize="13" FontAttributes="Bold" TextColor="#B5493B" CharacterSpacing="1.2" />
+          <Label Text="Lost books" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+        </VerticalStackLayout>
+        <Button Grid.Column="1" Text="Back to status report" Clicked="OnCloseLostBooksClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+      </Grid>
+
+      <Border Grid.Row="1" Stroke="#E0B9B2" StrokeThickness="1" BackgroundColor="#F8EAE7" Padding="16" StrokeShape="RoundRectangle 10">
+        <Grid ColumnDefinitions="*,Auto">
+          <VerticalStackLayout Spacing="2">
+            <Label Text="Books removed from the current catalog" FontSize="15" FontAttributes="Bold" TextColor="#B5493B" />
+            <Label Text="Borrower and loan details remain available for historical reference." FontSize="12" TextColor="#776A5E" />
+          </VerticalStackLayout>
+          <Label Grid.Column="1" x:Name="LostBooksCountLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#B5493B" VerticalOptions="Center" />
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
+        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+          <Label Text="LOST BOOKS" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#B5493B" />
+          <CollectionView Grid.Row="1" x:Name="LostBooksReportCollection" SelectionMode="None" EmptyView="No books have been marked as lost.">
+            <CollectionView.ItemTemplate>
+              <DataTemplate x:DataType="models:BookStatusReportItem">
+                <Border Stroke="#EBD1CC" StrokeThickness="1" BackgroundColor="#FCF6F4" Padding="14" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
+                  <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="3">
+                    <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                    <Label Grid.Column="1" Text="LOST" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
+                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="12">
+                      <Label Text="{Binding ExpectedReturnDisplay}" FontSize="11" TextColor="#776A5E" />
+                      <Label Grid.Column="1" Text="{Binding LostOnDisplay}" FontSize="11" TextColor="#776A5E" HorizontalTextAlignment="End" />
+                    </Grid>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </CollectionView.ItemTemplate>
+          </CollectionView>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</ContentPage>
