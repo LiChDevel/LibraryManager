@@ -462,3 +462,4 @@ C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Release
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Release\net8.0-windows10.0.19041.0\win10-x64\qualifiers.txt
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Release\net8.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Release\net8.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
+C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Release\net8.0-windows10.0.19041.0\win10-x64\LibraryManager.sourcelink.json

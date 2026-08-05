@@ -20,6 +20,9 @@ public class Book
         BookStatus.Lost => "Lost",
         _ => "Unknown"
     };
+    public string AccessibilityDescription =>
+        $"{Title}, by {Author}, published {PublicationYear}, ISBN {Isbn}, status {StatusLabel}.";
+    public string AutomationIdValue => $"Book_{Id}";
 }
 
 public enum BookStatus { Available, CheckedOut, Lost }

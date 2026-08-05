@@ -25,4 +25,7 @@ public sealed class BookStatusReportItem
     public string LostOnDisplay => LostOn is null
         ? string.Empty
         : $"Marked lost {LostOn.Value:MMMM d, yyyy h:mm tt}";
+    public string AccessibilityDescription =>
+        $"{Title}, {CatalogDisplay}. {LoanDisplay}. {ExpectedReturnDisplay} {LostOnDisplay}".Trim();
+    public string AutomationIdValue => $"ReportBook_{BookId}";
 }

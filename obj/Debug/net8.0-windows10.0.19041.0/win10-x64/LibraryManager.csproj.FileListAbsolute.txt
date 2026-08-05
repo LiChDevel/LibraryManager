@@ -462,3 +462,4 @@ C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\bin\Debug\n
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.Windows.System.winmd
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.Windows.Widgets.winmd
 C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.UI.Xaml.Controls.pri
+C:\Users\luisf\OneDrive\Documentos\Dev\LibraryManager\LibraryManager\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\LibraryManager.sourcelink.json

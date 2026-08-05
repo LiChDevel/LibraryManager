@@ -24,9 +24,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<Services.BookRepository>();
 		builder.Services.AddSingleton<MainPage>();
 
-#if DEBUG
 		builder.Logging.AddDebug();
-#endif
 
 		return builder.Build();
 	}
