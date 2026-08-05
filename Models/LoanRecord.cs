@@ -25,4 +25,7 @@ public class LoanRecord
         : ActualReturnDate is not null
             ? $"Returned {ActualReturnDate.Value:MMMM d, yyyy h:mm tt}"
             : "Still checked out";
+    public string AccessibilityDescription =>
+        $"{BorrowerDisplay}. {LentOnDisplay}. {ExpectedReturnDisplay}. {ActualReturnDisplay}.";
+    public string AutomationIdValue => $"Loan_{Id}";
 }

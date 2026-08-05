@@ -2,12 +2,14 @@ using System.Collections.ObjectModel;
 using LibraryManager.Models;
 using LibraryManager.Services;
 using LiteDB;
+using Microsoft.Extensions.Logging;
 
 namespace LibraryManager;
 
 public partial class MainPage : ContentPage
 {
     private readonly BookRepository _repository;
+    private readonly ILogger<MainPage> _logger;
     private readonly ObservableCollection<Book> _books = [];
     private readonly ObservableCollection<LoanRecord> _loanHistory = [];
     private readonly ObservableCollection<BookStatusReportItem> _availableBooks = [];
@@ -15,11 +17,13 @@ public partial class MainPage : ContentPage
     private readonly ObservableCollection<BookStatusReportItem> _lostBooks = [];
     private Book? _selectedBook;
     private bool _isFilteringBorrowerInput;
+    private bool _isShowingOperationError;
 
-    public MainPage(BookRepository repository)
+    public MainPage(BookRepository repository, ILogger<MainPage> logger)
     {
         InitializeComponent();
         _repository = repository;
+        _logger = logger;
         BooksCollection.ItemsSource = _books;
         BindableLayout.SetItemsSource(LoanHistoryList, _loanHistory);
         AvailableBooksReportCollection.ItemsSource = _availableBooks;
@@ -32,19 +36,28 @@ public partial class MainPage : ContentPage
 
     private void LoadBooks()
     {
-        var selectedId = _selectedBook?.Id;
-        _books.Clear();
-
-        foreach (var book in _repository.GetAll(SearchEntry?.Text))
+        try
         {
-            _books.Add(book);
-        }
+            var selectedId = _selectedBook?.Id;
+            _books.Clear();
 
-        _selectedBook = selectedId is null
-            ? null
-            : _books.FirstOrDefault(book => book.Id == selectedId);
-        BooksCollection.SelectedItem = _selectedBook;
-        ShowSelectedBook();
+            foreach (var book in _repository.GetAll(SearchEntry?.Text))
+            {
+                _books.Add(book);
+            }
+
+            _selectedBook = selectedId is null
+                ? null
+                : _books.FirstOrDefault(book => book.Id == selectedId);
+            BooksCollection.SelectedItem = _selectedBook;
+            ShowSelectedBook();
+        }
+        catch (Exception exception)
+        {
+            _books.Clear();
+            _selectedBook = null;
+            QueueOperationError("load the catalog", exception);
+        }
     }
 
     private async void OnSaveBookClicked(object sender, EventArgs e)
@@ -96,6 +109,10 @@ public partial class MainPage : ContentPage
                 "ISBN already exists",
                 "Each book in the catalog must have a unique ISBN.",
                 "OK");
+        }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("add the book", exception);
         }
     }
 
@@ -156,7 +173,7 @@ public partial class MainPage : ContentPage
             (Entry)sender,
             e.NewTextValue,
             BorrowerInputRules.FilterFullName,
-            "Name accepts letters and spaces only.");
+            "Enter at least two names using letters and spaces only.");
     }
 
     private void OnBorrowerIdTextChanged(object sender, TextChangedEventArgs e)
@@ -175,7 +192,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        var borrowerName = BorrowerNameEntry.Text?.Trim() ?? string.Empty;
+        var borrowerName = BorrowerInputRules.NormalizeFullName(BorrowerNameEntry.Text);
         var borrowerId = BorrowerIdEntry.Text?.Trim() ?? string.Empty;
         var expectedReturnDate = ExpectedReturnDatePicker.Date;
 
@@ -193,7 +210,7 @@ public partial class MainPage : ContentPage
         {
             await DisplayAlert(
                 "Check the borrower name",
-                "The borrower name can contain only letters and spaces.",
+                "Enter at least two names using letters and spaces only.",
                 "OK");
             return;
         }
@@ -237,6 +254,10 @@ public partial class MainPage : ContentPage
             LoadBooks();
             await DisplayAlert("Loan not completed", exception.Message, "OK");
         }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("record the loan", exception);
+        }
     }
 
     private async void OnReturnBookClicked(object sender, EventArgs e)
@@ -246,7 +267,16 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        var activeLoan = _repository.GetActiveLoan(_selectedBook.Id);
+        LoanRecord? activeLoan;
+        try
+        {
+            activeLoan = _repository.GetActiveLoan(_selectedBook.Id);
+        }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("load the active loan", exception);
+            return;
+        }
         var borrower = activeLoan?.BorrowerFullName ?? "the current borrower";
         var confirmed = await DisplayAlert(
             "Mark this book as returned?",
@@ -273,6 +303,10 @@ public partial class MainPage : ContentPage
         {
             LoadBooks();
             await DisplayAlert("Return not completed", exception.Message, "OK");
+        }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("record the return", exception);
         }
     }
 
@@ -311,6 +345,10 @@ public partial class MainPage : ContentPage
             LoadBooks();
             await DisplayAlert("Book not marked as lost", exception.Message, "OK");
         }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("mark the book as lost", exception);
+        }
     }
 
     private async void OnDeleteBookClicked(object sender, EventArgs e)
@@ -341,6 +379,10 @@ public partial class MainPage : ContentPage
         {
             LoadBooks();
             await DisplayAlert("Book not deleted", exception.Message, "OK");
+        }
+        catch (Exception exception)
+        {
+            await ShowOperationErrorAsync("delete the book", exception);
         }
     }
 
@@ -398,11 +440,23 @@ public partial class MainPage : ContentPage
     private void ShowBorrowerInputRule()
     {
         BorrowerInputRuleLabel.Text =
-            "Name: letters and spaces only. ID: numbers only.";
+            "Full name: at least two names, letters and spaces only. ID: numbers only.";
         BorrowerInputRuleLabel.TextColor = Color.FromArgb("#776A5E");
     }
 
     private void ShowSelectedBook()
+    {
+        try
+        {
+            ShowSelectedBookCore();
+        }
+        catch (Exception exception)
+        {
+            QueueOperationError("load the selected book details", exception);
+        }
+    }
+
+    private void ShowSelectedBookCore()
     {
         var book = _selectedBook;
         var activeLoan = book is null
@@ -468,34 +522,78 @@ public partial class MainPage : ContentPage
 
     private void LoadStatusReport()
     {
-        _availableBooks.Clear();
-        _checkedOutBooks.Clear();
-
-        foreach (var item in _repository.GetStatusReport())
+        try
         {
-            if (item.Status == BookStatus.Available)
-            {
-                _availableBooks.Add(item);
-            }
-            else
-            {
-                _checkedOutBooks.Add(item);
-            }
-        }
+            _availableBooks.Clear();
+            _checkedOutBooks.Clear();
 
-        AvailableCountLabel.Text = _availableBooks.Count.ToString();
-        CheckedOutCountLabel.Text = _checkedOutBooks.Count.ToString();
+            foreach (var item in _repository.GetStatusReport())
+            {
+                if (item.Status == BookStatus.Available)
+                {
+                    _availableBooks.Add(item);
+                }
+                else
+                {
+                    _checkedOutBooks.Add(item);
+                }
+            }
+
+            AvailableCountLabel.Text = _availableBooks.Count.ToString();
+            CheckedOutCountLabel.Text = _checkedOutBooks.Count.ToString();
+        }
+        catch (Exception exception)
+        {
+            _availableBooks.Clear();
+            _checkedOutBooks.Clear();
+            QueueOperationError("load the status report", exception);
+        }
     }
 
     private void LoadLostBooksReport()
     {
-        _lostBooks.Clear();
-
-        foreach (var item in _repository.GetLostBooksReport())
+        try
         {
-            _lostBooks.Add(item);
+            _lostBooks.Clear();
+
+            foreach (var item in _repository.GetLostBooksReport())
+            {
+                _lostBooks.Add(item);
+            }
+
+            LostBooksCountLabel.Text = _lostBooks.Count.ToString();
+        }
+        catch (Exception exception)
+        {
+            _lostBooks.Clear();
+            QueueOperationError("load the lost-books report", exception);
+        }
+    }
+
+    private void QueueOperationError(string operation, Exception exception) =>
+        Dispatcher.Dispatch(async () =>
+            await ShowOperationErrorAsync(operation, exception));
+
+    private async Task ShowOperationErrorAsync(string operation, Exception exception)
+    {
+        _logger.LogError(exception, "Could not {Operation}.", operation);
+
+        if (_isShowingOperationError)
+        {
+            return;
         }
 
-        LostBooksCountLabel.Text = _lostBooks.Count.ToString();
+        _isShowingOperationError = true;
+        try
+        {
+            var message = exception is LibraryDataException
+                ? exception.Message
+                : $"The app could not {operation}. Please try again. If the problem continues, restart the app.";
+            await DisplayAlert("Something went wrong", message, "OK");
+        }
+        finally
+        {
+            _isShowingOperationError = false;
+        }
     }
 }

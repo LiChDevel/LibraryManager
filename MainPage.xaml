@@ -1,35 +1,94 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:models="clr-namespace:LibraryManager.Models" x:Class="LibraryManager.MainPage" BackgroundColor="#F6F1E7" Title="Catalog">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:models="clr-namespace:LibraryManager.Models" x:Class="LibraryManager.MainPage" BackgroundColor="#F6F1E7" Title="Catalog" AutomationId="LibraryCatalogPage">
   <Grid Padding="32" RowDefinitions="Auto,*" RowSpacing="24">
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
       <VerticalStackLayout Spacing="2">
         <Label Text="THE READING ROOM" FontSize="13" FontAttributes="Bold" TextColor="#A95C39" CharacterSpacing="1.2" />
-        <Label Text="Library catalog" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+        <Label Text="Library catalog" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level1" />
       </VerticalStackLayout>
-      <Button Grid.Column="1" Text="Status report" Clicked="OnOpenStatusReportClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#173B4C" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+      <Button Grid.Column="1" Text="Status report" Clicked="OnOpenStatusReportClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#173B4C" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" AutomationId="OpenStatusReportButton" SemanticProperties.Description="Open book status report" SemanticProperties.Hint="Shows available, checked-out, and lost-book reports." />
     </Grid>
-    <Grid Grid.Row="1" ColumnDefinitions="1.15*,1.35*,1*" ColumnSpacing="20">
-      <Border Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="22" StrokeShape="RoundRectangle 12">
+    <Grid Grid.Row="1" x:Name="MainContentGrid" ColumnDefinitions="1.15*,1.35*,1*" RowDefinitions="*" ColumnSpacing="20" RowSpacing="20">
+      <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="WindowWidthStates">
+          <VisualState x:Name="WideLayout">
+            <VisualState.StateTriggers>
+              <AdaptiveTrigger MinWindowWidth="1180" />
+            </VisualState.StateTriggers>
+            <VisualState.Setters>
+              <Setter Property="ColumnDefinitions" Value="1.15*,1.35*,*" />
+              <Setter Property="RowDefinitions" Value="*" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.RowSpan" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Column" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.RowSpan" Value="1" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Column" Value="2" />
+              <Setter TargetName="DetailsPanel" Property="Grid.RowSpan" Value="1" />
+            </VisualState.Setters>
+          </VisualState>
+          <VisualState x:Name="MediumLayout">
+            <VisualState.StateTriggers>
+              <AdaptiveTrigger MinWindowWidth="760" />
+            </VisualState.StateTriggers>
+            <VisualState.Setters>
+              <Setter Property="ColumnDefinitions" Value="0.95*,1.25*" />
+              <Setter Property="RowDefinitions" Value="*,*" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.RowSpan" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Column" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.RowSpan" Value="2" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Row" Value="1" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="DetailsPanel" Property="Grid.RowSpan" Value="1" />
+            </VisualState.Setters>
+          </VisualState>
+          <VisualState x:Name="CompactLayout">
+            <VisualState.StateTriggers>
+              <AdaptiveTrigger MinWindowWidth="0" />
+            </VisualState.StateTriggers>
+            <VisualState.Setters>
+              <Setter Property="ColumnDefinitions" Value="*" />
+              <Setter Property="RowDefinitions" Value="*,*,*" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Row" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="AddBookPanel" Property="Grid.RowSpan" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Row" Value="1" />
+              <Setter TargetName="RegistryPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="RegistryPanel" Property="Grid.RowSpan" Value="1" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Row" Value="2" />
+              <Setter TargetName="DetailsPanel" Property="Grid.Column" Value="0" />
+              <Setter TargetName="DetailsPanel" Property="Grid.RowSpan" Value="1" />
+            </VisualState.Setters>
+          </VisualState>
+        </VisualStateGroup>
+      </VisualStateManager.VisualStateGroups>
+
+      <Border x:Name="AddBookPanel" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="22" StrokeShape="RoundRectangle 12">
         <ScrollView><VerticalStackLayout Spacing="15">
-          <Label Text="Add a book" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" />
+          <Label Text="Add a book" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level2" />
           <Label Text="Catalog details" FontSize="13" TextColor="#776A5E" />
-          <Entry x:Name="TitleEntry" Placeholder="Book title *" />
-          <Entry x:Name="AuthorEntry" Placeholder="Author *" />
-          <Entry x:Name="IsbnEntry" Placeholder="ISBN *" />
-          <Entry x:Name="YearEntry" Placeholder="Publication year *" Keyboard="Numeric" />
+          <Entry x:Name="TitleEntry" Placeholder="Book title *" AutomationId="BookTitleEntry" SemanticProperties.Description="Book title, required" />
+          <Entry x:Name="AuthorEntry" Placeholder="Author *" AutomationId="BookAuthorEntry" SemanticProperties.Description="Book author, required" />
+          <Entry x:Name="IsbnEntry" Placeholder="ISBN *" AutomationId="BookIsbnEntry" SemanticProperties.Description="Book ISBN, required" />
+          <Entry x:Name="YearEntry" Placeholder="Publication year *" Keyboard="Numeric" AutomationId="BookPublicationYearEntry" SemanticProperties.Description="Publication year, required" SemanticProperties.Hint="Enter a numeric year that is not in the future." />
           <Label Text="New catalog items are available by default." FontSize="12" TextColor="#776A5E" />
-          <Button Text="Save to catalog" Clicked="OnSaveBookClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" Padding="16,11" />
-          <Button Text="Clear form" Clicked="OnClearFormClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" />
+          <Button Text="Save to catalog" Clicked="OnSaveBookClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" Padding="16,11" AutomationId="SaveBookButton" SemanticProperties.Description="Save book to catalog" />
+          <Button Text="Clear form" Clicked="OnClearFormClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" AutomationId="ClearBookFormButton" SemanticProperties.Description="Clear add-book form" />
         </VerticalStackLayout></ScrollView>
       </Border>
-      <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="14">
-        <Label Text="All books" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" />
-        <SearchBar Grid.Row="1" x:Name="SearchEntry" Placeholder="Search title or author" TextChanged="OnSearchTextChanged" BackgroundColor="#FFFDF8" />
-        <CollectionView Grid.Row="2" x:Name="BooksCollection" SelectionMode="Single" SelectionChanged="OnBookSelectionChanged" EmptyView="No books match this search.">
+      <Grid x:Name="RegistryPanel" Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+        <Label Text="All books" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level2" />
+        <SearchBar Grid.Row="1" x:Name="SearchEntry" Placeholder="Search title or author" TextChanged="OnSearchTextChanged" BackgroundColor="#FFFDF8" AutomationId="BookSearchBar" SemanticProperties.Description="Search books by title or author" />
+        <CollectionView Grid.Row="2" x:Name="BooksCollection" SelectionMode="Single" SelectionChanged="OnBookSelectionChanged" EmptyView="No books match this search." AutomationId="BooksCollectionView" SemanticProperties.Description="Current library catalog">
           <CollectionView.ItemTemplate><DataTemplate>
             <Border Stroke="#E5DACB" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="14" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
               <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16" TextColor="#173B4C" LineBreakMode="TailTruncation" />
+                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16" TextColor="#173B4C" LineBreakMode="TailTruncation" AutomationId="{Binding AutomationIdValue}" SemanticProperties.Description="{Binding AccessibilityDescription}" />
                 <Label Grid.Column="1" Text="{Binding StatusLabel}" FontSize="11" FontAttributes="Bold" TextColor="#3F7452" VerticalOptions="Center">
                   <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="{x:Static models:BookStatus.CheckedOut}">
@@ -44,39 +103,39 @@
           </DataTemplate></CollectionView.ItemTemplate>
         </CollectionView>
       </Grid>
-      <Border Grid.Column="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#173B4C" Padding="22" StrokeShape="RoundRectangle 12">
+      <Border x:Name="DetailsPanel" Grid.Column="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#173B4C" Padding="22" StrokeShape="RoundRectangle 12">
         <ScrollView>
           <VerticalStackLayout Spacing="13">
             <Label Text="BOOK DETAILS" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#E3B18C" />
-            <Label x:Name="DetailTitleLabel" Text="Select a book" FontSize="24" FontAttributes="Bold" TextColor="#FFFDF8" />
+            <Label x:Name="DetailTitleLabel" Text="Select a book" FontSize="24" FontAttributes="Bold" TextColor="#FFFDF8" AutomationId="SelectedBookTitle" SemanticProperties.HeadingLevel="Level2" />
             <Label x:Name="DetailAuthorLabel" Text="Its full catalog record will appear here." FontSize="14" TextColor="#C9D6D9" />
             <BoxView HeightRequest="1" Color="#426071" Margin="0,6" />
             <Label x:Name="DetailIsbnLabel" Text="ISBN —" FontSize="14" TextColor="#FFFDF8" />
             <Label x:Name="DetailYearLabel" Text="Published —" FontSize="14" TextColor="#FFFDF8" />
-            <Label x:Name="DetailStatusLabel" Text="Status —" FontSize="14" FontAttributes="Bold" TextColor="#E3B18C" />
+            <Label x:Name="DetailStatusLabel" Text="Status —" FontSize="14" FontAttributes="Bold" TextColor="#E3B18C" AutomationId="SelectedBookStatus" SemanticProperties.Description="Selected book status" />
             <Label x:Name="DetailLoanDateLabel" Text="Lent on —" FontSize="14" TextColor="#FFFDF8" />
             <Label x:Name="DetailReturnDateLabel" Text="Expected return —" FontSize="14" TextColor="#FFFDF8" />
             <Label x:Name="DetailBorrowerLabel" Text="Borrower —" FontSize="14" TextColor="#FFFDF8" />
             <Label x:Name="DetailBorrowerIdLabel" Text="Borrower ID —" FontSize="14" TextColor="#FFFDF8" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,5,0,0">
-              <Button x:Name="LendButton" Text="Lend book" Clicked="OnLendBookClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" />
-              <Button x:Name="LostButton" Text="Lost book" Clicked="OnMarkBookLostClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#B5493B" TextColor="White" CornerRadius="8" />
-              <Button Grid.Column="1" x:Name="ReturnButton" Text="Mark returned" Clicked="OnReturnBookClicked" IsVisible="False" BackgroundColor="#4C7A5B" TextColor="White" CornerRadius="8" />
+              <Button x:Name="LendButton" Text="Lend book" Clicked="OnLendBookClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" AutomationId="LendSelectedBookButton" SemanticProperties.Description="Lend selected book" />
+              <Button x:Name="LostButton" Text="Lost book" Clicked="OnMarkBookLostClicked" IsEnabled="False" IsVisible="False" BackgroundColor="#B5493B" TextColor="White" CornerRadius="8" AutomationId="MarkSelectedBookLostButton" SemanticProperties.Description="Mark selected book as lost" SemanticProperties.Hint="Removes the book from the current catalog and moves it to Lost books." />
+              <Button Grid.Column="1" x:Name="ReturnButton" Text="Mark returned" Clicked="OnReturnBookClicked" IsVisible="False" BackgroundColor="#4C7A5B" TextColor="White" CornerRadius="8" AutomationId="ReturnSelectedBookButton" SemanticProperties.Description="Mark selected book as returned" />
             </Grid>
 
             <Border x:Name="LoanForm" IsVisible="False" Stroke="#E3B18C" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="14" StrokeShape="RoundRectangle 8">
               <VerticalStackLayout Spacing="10">
-                <Label Text="New loan" FontSize="18" FontAttributes="Bold" TextColor="#173B4C" />
+                <Label Text="New loan" FontSize="18" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level3" />
                 <Label Text="Borrower information is required to complete the loan." FontSize="11" TextColor="#776A5E" />
-                <Entry x:Name="BorrowerNameEntry" Placeholder="Borrower full name *" Keyboard="Text" TextChanged="OnBorrowerNameTextChanged" />
-                <Entry x:Name="BorrowerIdEntry" Placeholder="Borrower ID *" Keyboard="Numeric" TextChanged="OnBorrowerIdTextChanged" />
-                <Label x:Name="BorrowerInputRuleLabel" Text="Name: letters and spaces only. ID: numbers only." FontSize="11" TextColor="#776A5E" />
+                <Entry x:Name="BorrowerNameEntry" Placeholder="Borrower full name *" Keyboard="Text" TextChanged="OnBorrowerNameTextChanged" AutomationId="BorrowerFullNameEntry" SemanticProperties.Description="Borrower full name, required" SemanticProperties.Hint="Enter at least two names using letters and spaces only." />
+                <Entry x:Name="BorrowerIdEntry" Placeholder="Borrower ID *" Keyboard="Numeric" TextChanged="OnBorrowerIdTextChanged" AutomationId="BorrowerIdEntry" SemanticProperties.Description="Borrower ID, required" SemanticProperties.Hint="Numbers only." />
+                <Label x:Name="BorrowerInputRuleLabel" Text="Full name: at least two names, letters and spaces only. ID: numbers only." FontSize="11" TextColor="#776A5E" />
                 <Label Text="Expected return date *" FontSize="12" TextColor="#776A5E" />
-                <DatePicker x:Name="ExpectedReturnDatePicker" Format="MMMM d, yyyy" TextColor="#173B4C" BackgroundColor="Transparent" />
+                <DatePicker x:Name="ExpectedReturnDatePicker" Format="MMMM d, yyyy" TextColor="#173B4C" BackgroundColor="Transparent" AutomationId="ExpectedReturnDatePicker" SemanticProperties.Description="Expected return date, required" />
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                  <Button Text="Cancel" Clicked="OnCancelLoanClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" />
-                  <Button Grid.Column="1" Text="Confirm loan" Clicked="OnConfirmLoanClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" />
+                  <Button Text="Cancel" Clicked="OnCancelLoanClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" AutomationId="CancelLoanButton" SemanticProperties.Description="Cancel loan" />
+                  <Button Grid.Column="1" Text="Confirm loan" Clicked="OnConfirmLoanClicked" BackgroundColor="#A95C39" TextColor="White" CornerRadius="8" AutomationId="ConfirmLoanButton" SemanticProperties.Description="Confirm book loan" />
                 </Grid>
               </VerticalStackLayout>
             </Border>
@@ -92,7 +151,7 @@
                 <DataTemplate x:DataType="models:LoanRecord">
                   <Border Stroke="#426071" StrokeThickness="1" BackgroundColor="#21495A" Padding="12" StrokeShape="RoundRectangle 8">
                     <VerticalStackLayout Spacing="4">
-                      <Label Text="{Binding BorrowerDisplay}" FontSize="13" FontAttributes="Bold" TextColor="#FFFDF8" />
+                      <Label Text="{Binding BorrowerDisplay}" FontSize="13" FontAttributes="Bold" TextColor="#FFFDF8" AutomationId="{Binding AutomationIdValue}" SemanticProperties.Description="{Binding AccessibilityDescription}" />
                       <Label Text="{Binding LentOnDisplay}" FontSize="11" TextColor="#C9D6D9" />
                       <Label Text="{Binding ExpectedReturnDisplay}" FontSize="11" TextColor="#C9D6D9" />
                       <Label Text="{Binding ActualReturnDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#9CC9A8">
@@ -109,7 +168,7 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="10" Margin="0,5,0,0">
-              <Button x:Name="DeleteButton" Text="Delete book" Clicked="OnDeleteBookClicked" IsEnabled="False" BackgroundColor="Transparent" TextColor="#FFFDF8" BorderColor="#E3B18C" BorderWidth="1" CornerRadius="8" />
+              <Button x:Name="DeleteButton" Text="Delete book" Clicked="OnDeleteBookClicked" IsEnabled="False" BackgroundColor="Transparent" TextColor="#FFFDF8" BorderColor="#E3B18C" BorderWidth="1" CornerRadius="8" AutomationId="DeleteSelectedBookButton" SemanticProperties.Description="Permanently delete selected available book" />
             </VerticalStackLayout>
           </VerticalStackLayout>
         </ScrollView>
@@ -120,10 +179,10 @@
       <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
         <VerticalStackLayout Spacing="2">
           <Label Text="CIRCULATION SNAPSHOT" FontSize="13" FontAttributes="Bold" TextColor="#A95C39" CharacterSpacing="1.2" />
-          <Label Text="Book status report" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+          <Label Text="Book status report" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level1" />
         </VerticalStackLayout>
-        <Button Grid.Column="1" Text="Lost books" Clicked="OnOpenLostBooksClicked" BackgroundColor="Transparent" TextColor="#B5493B" BorderColor="#B5493B" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
-        <Button Grid.Column="2" Text="Close report" Clicked="OnCloseStatusReportClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+        <Button Grid.Column="1" Text="Lost books" Clicked="OnOpenLostBooksClicked" BackgroundColor="Transparent" TextColor="#B5493B" BorderColor="#B5493B" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" AutomationId="OpenLostBooksReportButton" SemanticProperties.Description="Open lost books report" />
+        <Button Grid.Column="2" Text="Close report" Clicked="OnCloseStatusReportClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" AutomationId="CloseStatusReportButton" SemanticProperties.Description="Close book status report" />
       </Grid>
 
       <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="16">
@@ -144,13 +203,13 @@
       <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="18">
         <Border Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
-            <Label Text="AVAILABLE" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#3F7452" />
-            <CollectionView Grid.Row="1" x:Name="AvailableBooksReportCollection" SelectionMode="None" EmptyView="No books are currently available.">
+            <Label Text="AVAILABLE" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#3F7452" SemanticProperties.HeadingLevel="Level2" />
+            <CollectionView Grid.Row="1" x:Name="AvailableBooksReportCollection" SelectionMode="None" EmptyView="No books are currently available." AutomationId="AvailableBooksReportCollection" SemanticProperties.Description="Available books report">
               <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:BookStatusReportItem">
                   <Border Stroke="#DDE8E0" StrokeThickness="1" BackgroundColor="#F8FBF8" Padding="13" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
                     <VerticalStackLayout Spacing="3">
-                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" AutomationId="{Binding AutomationIdValue}" SemanticProperties.Description="{Binding AccessibilityDescription}" />
                       <Label Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
                       <Label Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#3F7452" />
                     </VerticalStackLayout>
@@ -163,13 +222,13 @@
 
         <Border Grid.Column="1" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
-            <Label Text="CHECKED OUT" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#B5493B" />
-            <CollectionView Grid.Row="1" x:Name="CheckedOutBooksReportCollection" SelectionMode="None" EmptyView="No books are currently checked out.">
+            <Label Text="CHECKED OUT" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#B5493B" SemanticProperties.HeadingLevel="Level2" />
+            <CollectionView Grid.Row="1" x:Name="CheckedOutBooksReportCollection" SelectionMode="None" EmptyView="No books are currently checked out." AutomationId="CheckedOutBooksReportCollection" SemanticProperties.Description="Checked-out books report">
               <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:BookStatusReportItem">
                   <Border Stroke="#EBD1CC" StrokeThickness="1" BackgroundColor="#FCF6F4" Padding="13" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
                     <VerticalStackLayout Spacing="3">
-                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                      <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" AutomationId="{Binding AutomationIdValue}" SemanticProperties.Description="{Binding AccessibilityDescription}" />
                       <Label Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
                       <Label Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
                       <Label Text="{Binding ExpectedReturnDisplay}" FontSize="11" TextColor="#776A5E" />
@@ -187,9 +246,9 @@
       <Grid ColumnDefinitions="*,Auto">
         <VerticalStackLayout Spacing="2">
           <Label Text="ARCHIVED CIRCULATION" FontSize="13" FontAttributes="Bold" TextColor="#B5493B" CharacterSpacing="1.2" />
-          <Label Text="Lost books" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" />
+          <Label Text="Lost books" FontSize="32" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level1" />
         </VerticalStackLayout>
-        <Button Grid.Column="1" Text="Back to status report" Clicked="OnCloseLostBooksClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" />
+        <Button Grid.Column="1" Text="Back to status report" Clicked="OnCloseLostBooksClicked" BackgroundColor="#173B4C" TextColor="White" CornerRadius="8" Padding="18,10" VerticalOptions="Center" AutomationId="CloseLostBooksReportButton" SemanticProperties.Description="Return to book status report" />
       </Grid>
 
       <Border Grid.Row="1" Stroke="#E0B9B2" StrokeThickness="1" BackgroundColor="#F8EAE7" Padding="16" StrokeShape="RoundRectangle 10">
@@ -205,12 +264,12 @@
       <Border Grid.Row="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="18" StrokeShape="RoundRectangle 12">
         <Grid RowDefinitions="Auto,*" RowSpacing="12">
           <Label Text="LOST BOOKS" FontSize="12" FontAttributes="Bold" CharacterSpacing="1" TextColor="#B5493B" />
-          <CollectionView Grid.Row="1" x:Name="LostBooksReportCollection" SelectionMode="None" EmptyView="No books have been marked as lost.">
+          <CollectionView Grid.Row="1" x:Name="LostBooksReportCollection" SelectionMode="None" EmptyView="No books have been marked as lost." AutomationId="LostBooksReportCollection" SemanticProperties.Description="Lost books report">
             <CollectionView.ItemTemplate>
               <DataTemplate x:DataType="models:BookStatusReportItem">
                 <Border Stroke="#EBD1CC" StrokeThickness="1" BackgroundColor="#FCF6F4" Padding="14" Margin="0,0,0,9" StrokeShape="RoundRectangle 8">
                   <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="3">
-                    <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" />
+                    <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#173B4C" AutomationId="{Binding AutomationIdValue}" SemanticProperties.Description="{Binding AccessibilityDescription}" />
                     <Label Grid.Column="1" Text="LOST" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
                     <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding CatalogDisplay}" FontSize="11" TextColor="#776A5E" />
                     <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding LoanDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#B5493B" />
