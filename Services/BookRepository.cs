@@ -4,6 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace LibraryManager.Services;
 
+/// <summary>
+/// Administra todo el acceso a LiteDB y aplica las reglas de circulación en la
+/// capa de persistencia. La interfaz nunca abre ni consulta la base directamente.
+/// </summary>
 public class BookRepository
 {
     private const string BooksCollectionName = "books";
@@ -16,6 +20,7 @@ public class BookRepository
     public BookRepository(ILogger<BookRepository> logger)
     {
         _logger = logger;
+        // MAUI selecciona en cada equipo una carpeta de datos para el usuario actual.
         _databasePath = Path.Combine(FileSystem.AppDataDirectory, "library-manager.db");
     }
 
@@ -57,6 +62,7 @@ public class BookRepository
 
             if (book.Status != BookStatus.Available)
             {
+                // Un libro prestado debe usar el flujo de pérdida para cerrar su préstamo.
                 throw new InvalidOperationException(
                     "Only available books can be permanently deleted. Mark a checked-out book as lost instead.");
             }
@@ -87,6 +93,7 @@ public class BookRepository
                 .Where(book => book.Status != BookStatus.Lost)
                 .OrderBy(book => book.Title)
                 .ToList();
+            // Unir préstamos activos por BookId para generar una fila por libro.
             var activeLoans = database.GetCollection<LoanRecord>(LoansCollectionName)
                 .Find(loan =>
                     loan.ActualReturnDate == null &&
@@ -120,6 +127,8 @@ public class BookRepository
                 .Where(book => book.Status == BookStatus.Lost)
                 .OrderBy(book => book.Title)
                 .ToList();
+            // Un libro perdido debe tener un cierre asociado; si datos antiguos o
+            // dañados contienen varios, se utiliza el más reciente.
             var lostLoans = database.GetCollection<LoanRecord>(LoansCollectionName)
                 .Find(loan => loan.MarkedLostOn != null)
                 .GroupBy(loan => loan.BookId)
@@ -196,6 +205,7 @@ public class BookRepository
             book.Status = BookStatus.CheckedOut;
             book.ExpectedReturnDate = loan.ExpectedReturnDate;
 
+            // El estado del libro y el préstamo deben completarse o revertirse juntos.
             database.BeginTrans();
             try
             {
@@ -237,6 +247,7 @@ public class BookRepository
             book.Status = BookStatus.Available;
             book.ExpectedReturnDate = null;
 
+            // Cerrar el préstamo y restaurar la disponibilidad de forma atómica.
             database.BeginTrans();
             try
             {
@@ -273,11 +284,13 @@ public class BookRepository
                     "Only a currently checked-out book can be marked as lost.");
             }
 
+            // Perdido es distinto de devuelto, por eso ActualReturnDate permanece nulo.
             var markedLostOn = DateTime.Now;
             loan.MarkedLostOn = markedLostOn;
             book.Status = BookStatus.Lost;
             book.LostOn = markedLostOn;
 
+            // Archivar el libro y cerrar su préstamo activo como una sola operación.
             database.BeginTrans();
             try
             {
@@ -308,6 +321,7 @@ public class BookRepository
         catch (LiteException exception)
             when (exception.ErrorCode == LiteException.INDEX_DUPLICATE_KEY)
         {
+            // El ISBN duplicado tiene un mensaje específico y no es un fallo técnico.
             throw;
         }
         catch (Exception exception) when (IsStorageFailure(exception))
@@ -328,6 +342,8 @@ public class BookRepository
 
     private void EnsureInitialized(LiteDatabase database)
     {
+        // Los índices se crean de forma diferida: la inyección de dependencias puede
+        // construir el repositorio aunque el almacenamiento falle al iniciar la app.
         if (_isInitialized)
         {
             return;
@@ -335,6 +351,7 @@ public class BookRepository
 
         lock (_initializationLock)
         {
+            // Verificar de nuevo dentro del bloqueo por si otro proceso inicializó antes.
             if (_isInitialized)
             {
                 return;

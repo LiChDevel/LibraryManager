@@ -6,6 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace LibraryManager;
 
+/// <summary>
+/// Coordina la vista del catálogo con las operaciones del repositorio. Las
+/// colecciones observables mantienen sincronizados los controles XAML.
+/// </summary>
 public partial class MainPage : ContentPage
 {
     private readonly BookRepository _repository;
@@ -16,7 +20,9 @@ public partial class MainPage : ContentPage
     private readonly ObservableCollection<BookStatusReportItem> _checkedOutBooks = [];
     private readonly ObservableCollection<BookStatusReportItem> _lostBooks = [];
     private Book? _selectedBook;
+    // Evitar que TextChanged se ejecute recursivamente al asignar un valor filtrado.
     private bool _isFilteringBorrowerInput;
+    // Evitar varios diálogos simultáneos si fallan varias actualizaciones seguidas.
     private bool _isShowingOperationError;
 
     public MainPage(BookRepository repository, ILogger<MainPage> logger)
@@ -24,6 +30,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         _repository = repository;
         _logger = logger;
+        // Enlazar una vez y luego actualizar las colecciones observables existentes.
         BooksCollection.ItemsSource = _books;
         BindableLayout.SetItemsSource(LoanHistoryList, _loanHistory);
         AvailableBooksReportCollection.ItemsSource = _availableBooks;
@@ -38,6 +45,7 @@ public partial class MainPage : ContentPage
     {
         try
         {
+            // Conservar la selección por ID porque LiteDB devuelve objetos nuevos.
             var selectedId = _selectedBook?.Id;
             _books.Clear();
 
@@ -122,6 +130,7 @@ public partial class MainPage : ContentPage
     private void OnOpenStatusReportClicked(object sender, EventArgs e)
     {
         HideLoanForm();
+        // Volver siempre al reporte principal cuando se abre nuevamente.
         LostBooksOverlay.IsVisible = false;
         LoadStatusReport();
         StatusReportOverlay.IsVisible = true;
@@ -331,6 +340,7 @@ public partial class MainPage : ContentPage
         try
         {
             var bookTitle = _selectedBook.Title;
+            // La transacción cierra el préstamo y archiva el libro al mismo tiempo.
             _repository.MarkBookLost(_selectedBook.Id);
             _selectedBook = null;
             HideLoanForm();
@@ -429,6 +439,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
+        // Asignar Entry.Text vuelve a activar TextChanged; por eso se usa esta bandera.
         _isFilteringBorrowerInput = true;
         entry.Text = filteredValue;
         entry.CursorPosition = filteredValue.Length;
@@ -459,6 +470,7 @@ public partial class MainPage : ContentPage
     private void ShowSelectedBookCore()
     {
         var book = _selectedBook;
+        // Los datos del prestatario provienen del préstamo activo, no del catálogo.
         var activeLoan = book is null
             ? null
             : _repository.GetActiveLoan(book.Id);
@@ -499,6 +511,7 @@ public partial class MainPage : ContentPage
 
     private void LoadLoanHistory(Book? book)
     {
+        // Reconstruir la lista del libro para mostrar los resultados más recientes.
         _loanHistory.Clear();
 
         if (book is not null)
@@ -571,6 +584,7 @@ public partial class MainPage : ContentPage
     }
 
     private void QueueOperationError(string operation, Exception exception) =>
+        // Los eventos síncronos usan el dispatcher para mostrar la alerta asíncrona.
         Dispatcher.Dispatch(async () =>
             await ShowOperationErrorAsync(operation, exception));
 
@@ -586,6 +600,7 @@ public partial class MainPage : ContentPage
         _isShowingOperationError = true;
         try
         {
+            // Los fallos de almacenamiento ya incluyen un mensaje seguro; los demás no.
             var message = exception is LibraryDataException
                 ? exception.Message
                 : $"The app could not {operation}. Please try again. If the problem continues, restart the app.";

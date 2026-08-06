@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:models="clr-namespace:LibraryManager.Models" x:Class="LibraryManager.MainPage" BackgroundColor="#F6F1E7" Title="Catalog" AutomationId="LibraryCatalogPage">
   <Grid Padding="32" RowDefinitions="Auto,*" RowSpacing="24">
+    <!-- Encabezado y acceso a los reportes de circulación. -->
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
       <VerticalStackLayout Spacing="2">
         <Label Text="THE READING ROOM" FontSize="13" FontAttributes="Bold" TextColor="#A95C39" CharacterSpacing="1.2" />
@@ -8,6 +9,10 @@
       </VerticalStackLayout>
       <Button Grid.Column="1" Text="Status report" Clicked="OnOpenStatusReportClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#173B4C" BorderWidth="1" CornerRadius="8" Padding="18,10" VerticalOptions="Center" AutomationId="OpenStatusReportButton" SemanticProperties.Description="Open book status report" SemanticProperties.Hint="Shows available, checked-out, and lost-book reports." />
     </Grid>
+    <!--
+      Área principal. Los estados visuales conservan los tres paneles y los
+      reorganizan para ventanas de escritorio anchas, medianas y compactas.
+    -->
     <Grid Grid.Row="1" x:Name="MainContentGrid" ColumnDefinitions="1.15*,1.35*,1*" RowDefinitions="*" ColumnSpacing="20" RowSpacing="20">
       <VisualStateManager.VisualStateGroups>
         <VisualStateGroup x:Name="WindowWidthStates">
@@ -68,6 +73,7 @@
         </VisualStateGroup>
       </VisualStateManager.VisualStateGroups>
 
+      <!-- Formulario para crear un registro en el catálogo. -->
       <Border x:Name="AddBookPanel" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#FFFDF8" Padding="22" StrokeShape="RoundRectangle 12">
         <ScrollView><VerticalStackLayout Spacing="15">
           <Label Text="Add a book" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level2" />
@@ -81,6 +87,7 @@
           <Button Text="Clear form" Clicked="OnClearFormClicked" BackgroundColor="Transparent" TextColor="#173B4C" BorderColor="#D6C8B5" BorderWidth="1" CornerRadius="8" AutomationId="ClearBookFormButton" SemanticProperties.Description="Clear add-book form" />
         </VerticalStackLayout></ScrollView>
       </Border>
+      <!-- Catálogo activo con búsqueda. Los libros perdidos se excluyen. -->
       <Grid x:Name="RegistryPanel" Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="14">
         <Label Text="All books" FontSize="22" FontAttributes="Bold" TextColor="#173B4C" SemanticProperties.HeadingLevel="Level2" />
         <SearchBar Grid.Row="1" x:Name="SearchEntry" Placeholder="Search title or author" TextChanged="OnSearchTextChanged" BackgroundColor="#FFFDF8" AutomationId="BookSearchBar" SemanticProperties.Description="Search books by title or author" />
@@ -103,6 +110,7 @@
           </DataTemplate></CollectionView.ItemTemplate>
         </CollectionView>
       </Grid>
+      <!-- Libro seleccionado, acciones de circulación e historial de préstamos. -->
       <Border x:Name="DetailsPanel" Grid.Column="2" Stroke="#D6C8B5" StrokeThickness="1" BackgroundColor="#173B4C" Padding="22" StrokeShape="RoundRectangle 12">
         <ScrollView>
           <VerticalStackLayout Spacing="13">
@@ -175,6 +183,7 @@
       </Border>
     </Grid>
 
+    <!-- Reporte de circulación activo mostrado sobre el catálogo. -->
     <Grid Grid.RowSpan="2" x:Name="StatusReportOverlay" IsVisible="False" ZIndex="10" BackgroundColor="#F6F1E7" RowDefinitions="Auto,Auto,*" RowSpacing="22">
       <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
         <VerticalStackLayout Spacing="2">
@@ -242,6 +251,7 @@
       </Grid>
     </Grid>
 
+    <!-- Libros perdidos se muestra sobre el reporte para poder regresar a este. -->
     <Grid Grid.RowSpan="2" x:Name="LostBooksOverlay" IsVisible="False" ZIndex="11" BackgroundColor="#F6F1E7" RowDefinitions="Auto,Auto,*" RowSpacing="22">
       <Grid ColumnDefinitions="*,Auto">
         <VerticalStackLayout Spacing="2">

@@ -2,6 +2,10 @@ using LiteDB;
 
 namespace LibraryManager.Models;
 
+/// <summary>
+/// Detalles inmutables del préstamo y uno de dos resultados de cierre: devuelto
+/// o perdido. Las copias de los datos preservan el historial si cambia el catálogo.
+/// </summary>
 public class LoanRecord
 {
     [BsonId]
@@ -20,6 +24,7 @@ public class LoanRecord
     public string LentOnDisplay => $"Lent {LentOn:MMMM d, yyyy h:mm tt}";
     public string ExpectedReturnDisplay =>
         $"Expected return {ExpectedReturnDate:MMMM d, yyyy}";
+    // Un préstamo perdido no recibe una fecha de devolución real intencionalmente.
     public string ActualReturnDisplay => MarkedLostOn is not null
         ? $"Marked lost {MarkedLostOn.Value:MMMM d, yyyy h:mm tt}"
         : ActualReturnDate is not null

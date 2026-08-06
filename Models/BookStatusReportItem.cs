@@ -2,6 +2,10 @@ using LiteDB;
 
 namespace LibraryManager.Models;
 
+/// <summary>
+/// Proyección de solo lectura que combina datos del catálogo y del préstamo para
+/// los reportes. Mantenerla separada evita que el formato modifique Book.
+/// </summary>
 public sealed class BookStatusReportItem
 {
     public ObjectId BookId { get; init; } = ObjectId.Empty;

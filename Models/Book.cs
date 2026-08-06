@@ -2,6 +2,10 @@ using LiteDB;
 
 namespace LibraryManager.Models;
 
+/// <summary>
+/// Registro persistente del catálogo. Un libro perdido permanece almacenado
+/// para conservar su historial, aunque se oculte del catálogo activo.
+/// </summary>
 public class Book
 {
     [BsonId]
@@ -25,4 +29,5 @@ public class Book
     public string AutomationIdValue => $"Book_{Id}";
 }
 
+// Mantener estables los valores numéricos porque LiteDB guarda este enum como entero.
 public enum BookStatus { Available, CheckedOut, Lost }

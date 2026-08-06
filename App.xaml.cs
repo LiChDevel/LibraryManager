@@ -6,6 +6,7 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
+		// La inyección de dependencias crea MainPage con su repositorio y registrador.
 		MainPage = new AppShell(mainPage);
 	}
 }
